@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - x402-gateway
+      - mcp-server
+    restart: unless-stopped
+
+  x402-gateway:
+    build:
+      context: ./x402-gateway
+    ports:
+      - "4021:4021"
+    env_file: .env
+    restart: unless-stopped
+
+  mcp-server:
+    build:
+      context: ./mcp-server
+    ports:
+      - "7420:7420"
+    env_file: .env
+    depends_on:
+      - x402-gateway
+    restart: unless-stopped
+
+  cctp-worker:
+    build:
+      context: ./cctp
+    env_file: .env
+    restart: unless-stopped

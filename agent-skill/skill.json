@@ -1,0 +1,20 @@
+{
+  "name": "world-cup-analyst",
+  "displayName": "World Cup Analyst",
+  "version": "1.0.0",
+  "description": "A reusable agent skill that evaluates World Cup matches for prediction value, autonomously purchases premium analytics via x402 when the edge justifies the cost, tops up funds via CCTP if needed, and submits disciplined predictions on-chain.",
+  "requiresTools": [
+    "get_fixtures",
+    "get_match_analytics",
+    "get_standings",
+    "get_bracket",
+    "get_predictions",
+    "get_leaderboard",
+    "purchase_analysis"
+  ],
+  "entrypoint": "src/index.ts",
+  "mcpServer": {
+    "url": "${MCP_SERVER_URL}",
+    "transport": "streamable-http"
+  }
+}

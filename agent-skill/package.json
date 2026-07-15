@@ -1,0 +1,21 @@
+{
+  "name": "@worldcupiq/agent-skill",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test:cycle": "ts-node src/example.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "dotenv": "^16.6.1",
+    "ethers": "^6.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

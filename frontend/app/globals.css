@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+body {
+  background-color: #0B1F17;
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(47, 168, 79, 0.12), transparent 45%),
+    radial-gradient(circle at 80% 10%, rgba(255, 184, 0, 0.06), transparent 40%);
+  color: #F5F7F2;
+}
+
+.scoreboard-digit {
+  font-family: 'Space Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.animate-pulse-live {
+  animation: pulse-live 1.6s ease-in-out infinite;
+}
