@@ -17,6 +17,7 @@
     "dev:gateway": "npm run dev -w x402-gateway",
     "dev:mcp": "npm run dev -w mcp-server",
     "dev:cctp": "npm run dev -w cctp",
+    "build": "npm run build -w agent-skill && npm run build -w x402-gateway && npm run build -w mcp-server && npm run build -w cctp && npm run build -w frontend",
     "build:contracts": "npm run build -w contracts",
     "docker:up": "docker-compose up --build"
   },

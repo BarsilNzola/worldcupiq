@@ -1,0 +1,11 @@
+**/node_modules
+**/.next
+**/dist
+**/out
+**/cache
+**/artifacts
+**/typechain-types
+**/coverage
+.git
+.env
+*.log
