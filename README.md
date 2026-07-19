@@ -46,7 +46,8 @@ and call `runFullCycle(matchId)`.
 
 ### Sample end-to-end agent flow
 
-1. Agent calls `get_fixtures` → sees Brazil vs Argentina is upcoming.
+1. Agent calls `get_fixtures` → sees England vs Argentina (the current live World Cup 2026
+   semifinal) is upcoming.
 2. Agent calls `get_match_analytics` → gets the free preview.
 3. Agent compares its own model probability against market-implied odds (`get_predictions`) and
    finds a value edge.
@@ -54,6 +55,16 @@ and call `runFullCycle(matchId)`.
 5. Agent calls `purchase_analysis` → the MCP server signs an x402 payment and pays $0.01 USDC.
 6. Agent receives the full report, decides it's confident enough, and submits its prediction
    on-chain through `PredictionMarket.sol`.
+
+Fixtures and standings are wired to a live source — [football-data.org](https://www.football-data.org)'s
+FIFA World Cup competition endpoint — with a 30-second in-memory cache per service and a graceful
+fallback to a bundled snapshot if `WORLDCUP_DATA_API_KEY` isn't set or the request fails. Get a
+free key at https://www.football-data.org/client/register and drop it in `.env`. The bracket
+(`get_bracket`) is derived from live fixture data rather than hardcoded, so it updates itself as
+rounds complete. WorldCupIQ's own on-chain prediction sentiment (`get_predictions`) is separate
+from this — it's platform activity, not sourced externally, and is currently a deterministic
+placeholder (`mcp-server/src/sentiment.ts`) until enough real predictions exist on
+`PredictionMarket.sol` to aggregate.
 
 ## Repository layout
 

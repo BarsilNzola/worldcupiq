@@ -33,9 +33,9 @@ export async function verifyPayment(
   }
 
   const domain = {
-    name: "USD Coin",
+    name: "USDC", // confirmed via name() call against the real testnet contract
     version: "2",
-    chainId: 47, // placeholder Injective inEVM chain id; set to the real deployed chain id
+    chainId: Number(process.env.INJECTIVE_EVM_CHAIN_ID ?? 1439),
     verifyingContract: requirements.asset,
   };
 
@@ -81,8 +81,12 @@ export async function settlePayment(
         body: JSON.stringify({ paymentPayload: payload, paymentRequirements: requirements }),
       });
       const data = (await res.json()) as X402SettleResult;
+      if (!data.success) {
+        console.error(`[verify] Facilitator settlement failed: ${data.errorReason}`);
+      }
       return data;
     } catch (err) {
+      console.error(`[verify] Facilitator unreachable: ${(err as Error).message}`);
       return { success: false, errorReason: `facilitator_unreachable: ${(err as Error).message}` };
     }
   }
@@ -118,6 +122,7 @@ export async function settlePayment(
 
     return { success: true, txHash: receipt.hash };
   } catch (err) {
+    console.error(`[verify] Direct settlement failed: ${(err as Error).message}`);
     return { success: false, errorReason: (err as Error).message };
   }
 }

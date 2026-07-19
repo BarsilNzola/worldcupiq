@@ -17,7 +17,7 @@ async function main() {
     console.warn("Wallet env vars missing — running evaluation only, on-chain submission will be skipped.");
   }
 
-  const { evaluation, submission } = await analyst.runFullCycle("bra-arg-final");
+  const { evaluation, submission } = await analyst.runFullCycle("eng-arg-sf2");
 
   console.log("=== Evaluation ===");
   console.log(JSON.stringify(evaluation, null, 2));

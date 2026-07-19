@@ -12,11 +12,16 @@
     "agent-skill"
   ],
   "scripts": {
+    "dev": "concurrently -n gateway,mcp,cctp,frontend -c yellow,cyan,magenta,green \"npm:dev:gateway\" \"npm:dev:mcp\" \"npm:dev:cctp\" \"npm:dev:frontend\"",
     "dev:frontend": "npm run dev -w frontend",
     "dev:gateway": "npm run dev -w x402-gateway",
     "dev:mcp": "npm run dev -w mcp-server",
+    "dev:cctp": "npm run dev -w cctp",
     "build:contracts": "npm run build -w contracts",
     "docker:up": "docker-compose up --build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   },
   "engines": {
     "node": ">=18"

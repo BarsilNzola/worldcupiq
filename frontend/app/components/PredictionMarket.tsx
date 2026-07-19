@@ -43,11 +43,24 @@ export function PredictionMarket({ fixtures }: { fixtures: Fixture[] }) {
       return;
     }
 
+    const fixture = fixtures.find((f) => f.matchId === matchId);
+    if (!fixture) {
+      setError(`Could not find fixture data for ${matchId}.`);
+      return;
+    }
+
     setSubmitting(matchId);
     setError(null);
     try {
       const contract = await getPredictionMarketContract(provider, contractAddress);
-      const tx = await contract.submitPrediction(matchIdToBytes32(matchId), OUTCOME_ENUM[pick]);
+      const kickoffTimestamp = Math.floor(new Date(fixture.kickoffTimeUtc).getTime() / 1000);
+      const tx = await contract.submitPrediction(
+        matchIdToBytes32(matchId),
+        fixture.homeTeam,
+        fixture.awayTeam,
+        kickoffTimestamp,
+        OUTCOME_ENUM[pick]
+      );
       const receipt = await tx.wait();
       setTxHashes((prev) => ({ ...prev, [matchId]: receipt.hash }));
     } catch (err) {

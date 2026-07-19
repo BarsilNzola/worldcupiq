@@ -2,8 +2,6 @@ import { z } from "zod";
 import { ethers } from "ethers";
 import { randomBytes } from "crypto";
 
-const GATEWAY_URL = process.env.X402_GATEWAY_URL ?? "http://localhost:4021";
-
 export const purchaseAnalysisSchema = {
   name: "purchase_analysis",
   description:
@@ -12,7 +10,7 @@ export const purchaseAnalysisSchema = {
     "get_match_analytics only previews. Requires the agent to hold USDC on Injective (use the CCTP bridge " +
     "tool to top up first if the payment fails with insufficient_amount).",
   inputSchema: {
-    matchId: z.string().describe("The match identifier, e.g. 'bra-arg-final'"),
+    matchId: z.string().describe("The match identifier as returned by get_fixtures (numeric when live, slug-style when running on the fallback snapshot)"),
   },
 };
 
@@ -39,9 +37,9 @@ async function signPaymentAuthorization(requirements: X402Requirements, agentPri
   const nonce = ethers.hexlify(randomBytes(32));
 
   const domain = {
-    name: "USD Coin",
+    name: "USDC", // confirmed via name() call against the real testnet contract
     version: "2",
-    chainId: 47, // placeholder inEVM chain id — must match the deployed USDC contract's domain
+    chainId: Number(process.env.INJECTIVE_EVM_CHAIN_ID ?? 1439),
     verifyingContract: requirements.asset,
   };
 
@@ -81,7 +79,8 @@ export async function purchaseAnalysis(input: { matchId: string }) {
     return { error: "AGENT_WALLET_PRIVATE_KEY not configured for this MCP server instance" };
   }
 
-  const resourceUrl = `${GATEWAY_URL}/analytics/${input.matchId}/premium`;
+  const gatewayUrl = process.env.X402_GATEWAY_URL ?? "http://localhost:4021";
+  const resourceUrl = `${gatewayUrl}/analytics/${input.matchId}/premium`;
 
   // Step 1: probe the resource without payment to get the 402 + requirements.
   const probe = await fetch(resourceUrl);

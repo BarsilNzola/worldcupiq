@@ -28,4 +28,12 @@ export interface BridgeResult {
 export interface CircleAttestationResponse {
   status: "pending_confirmations" | "complete";
   attestation?: string;
+  /**
+   * Circle's own copy of the exact message bytes it attested to. Prefer this over any
+   * message bytes derived independently (e.g. from parsing burn-tx event logs) — any subtle
+   * mismatch there produces a signature that fails to verify against the real attester set,
+   * surfacing as a confusing "not attester" revert even when the attesters are configured
+   * correctly. This field is the authoritative source.
+   */
+  message?: string;
 }

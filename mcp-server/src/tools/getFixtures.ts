@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { FIXTURES } from "../mockData";
+import { getLiveFixtures } from "../dataSource";
 
 export const getFixturesSchema = {
   name: "get_fixtures",
@@ -12,7 +12,8 @@ export const getFixturesSchema = {
 };
 
 export async function getFixtures(input: { status?: string; team?: string }) {
-  let fixtures = FIXTURES;
+  const { fixtures: all, source } = await getLiveFixtures();
+  let fixtures = all;
 
   if (input.status) {
     fixtures = fixtures.filter((f) => f.status === input.status);
@@ -24,5 +25,5 @@ export async function getFixtures(input: { status?: string; team?: string }) {
     );
   }
 
-  return { fixtures };
+  return { fixtures, dataSource: source };
 }

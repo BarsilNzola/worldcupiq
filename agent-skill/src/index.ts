@@ -1,4 +1,5 @@
 export { WorldCupAnalyst } from "./WorldCupAnalyst";
+export type { AgentLogFn } from "./WorldCupAnalyst";
 export type { AnalystConfig, MatchEvaluation, Outcome } from "./types";
 export { DEFAULT_ANALYST_CONFIG } from "./types";
 
@@ -14,6 +15,6 @@ export { DEFAULT_ANALYST_CONFIG } from "./types";
  *     process.env.PREDICTION_MARKET_CONTRACT_ADDRESS!
  *   );
  *
- *   const { evaluation, submission } = await analyst.runFullCycle("bra-arg-final");
+ *   const { evaluation, submission } = await analyst.runFullCycle("eng-arg-sf2");
  *   console.log(evaluation.rationale, submission);
  */

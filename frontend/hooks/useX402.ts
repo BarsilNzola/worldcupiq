@@ -55,7 +55,7 @@ export function useX402(provider: ethers.BrowserProvider | null) {
         const nonce = ethers.hexlify(ethers.randomBytes(32));
 
         const domain = {
-          name: "USD Coin",
+          name: "USDC", // confirmed via name() call against the real testnet contract
           version: "2",
           chainId: (await provider.getNetwork()).chainId,
           verifyingContract: requirements.asset,

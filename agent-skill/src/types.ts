@@ -4,6 +4,7 @@ export interface MatchEvaluation {
   matchId: string;
   homeTeam: string;
   awayTeam: string;
+  kickoffTimeUtc: string;
   marketImpliedProbability: { home: number; draw: number; away: number };
   modelProbability?: { home: number; draw: number; away: number };
   edge?: number; // model probability minus market implied probability, for the recommended side

@@ -12,12 +12,13 @@ export interface Fixture {
 
 export interface StandingsRow {
   team: string;
+  group: string;
   played: number;
   won: number;
   drawn: number;
   lost: number;
-  goalDifference: number;
   points: number;
+  goalDifference?: number;
 }
 
 export interface BracketNode {

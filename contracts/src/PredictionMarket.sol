@@ -27,13 +27,19 @@ contract PredictionMarket is IPredictionMarket {
         owner = _owner == address(0) ? msg.sender : _owner;
     }
 
-    /// @notice Registers a new fixture. Called by the WorldCupIQ backend oracle when fixtures sync.
+    /// @notice Registers a new fixture. Permissionless — anyone can register a match, including
+    ///         the frontend calling this automatically right before a user's first prediction on
+    ///         it. Known trade-off for a demo-scope contract: since anyone can supply the team
+    ///         names/kickoff time, a bad actor could register a matchId with wrong data before
+    ///         anyone else does. A production version would gate this behind a trusted oracle
+    ///         (as the original owner-only version did) or verify against a canonical fixture
+    ///         source on-chain.
     function createMatch(
         bytes32 matchId,
         string calldata homeTeam,
         string calldata awayTeam,
         uint64 kickoffTimestamp
-    ) external onlyOwner {
+    ) public {
         require(matches[matchId].kickoffTimestamp == 0, "PredictionMarket: match exists");
 
         matches[matchId] = Match({
@@ -49,9 +55,20 @@ contract PredictionMarket is IPredictionMarket {
     }
 
     /// @notice Fans (or AI agents acting on their behalf) submit a prediction before kickoff.
-    function submitPrediction(bytes32 matchId, Outcome pick) external {
+    ///         Auto-registers the match on first use if it doesn't exist yet — no separate
+    ///         createMatch call, and no admin/oracle step, needed before predictions can flow.
+    function submitPrediction(
+        bytes32 matchId,
+        string calldata homeTeam,
+        string calldata awayTeam,
+        uint64 kickoffTimestamp,
+        Outcome pick
+    ) external {
+        if (matches[matchId].kickoffTimestamp == 0) {
+            createMatch(matchId, homeTeam, awayTeam, kickoffTimestamp);
+        }
+
         Match storage m = matches[matchId];
-        require(m.kickoffTimestamp != 0, "PredictionMarket: unknown match");
         require(block.timestamp < m.kickoffTimestamp, "PredictionMarket: kickoff has passed");
         require(pick != Outcome.UNSET, "PredictionMarket: invalid pick");
         require(predictions[matchId][msg.sender].submittedAt == 0, "PredictionMarket: already predicted");

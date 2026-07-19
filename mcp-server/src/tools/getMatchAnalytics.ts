@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { FIXTURES, MARKET_SENTIMENT } from "../mockData";
+import { getFixtureById } from "../dataSource";
+import { syntheticSentiment } from "../sentiment";
 
 export const getMatchAnalyticsSchema = {
   name: "get_match_analytics",
@@ -7,17 +8,17 @@ export const getMatchAnalyticsSchema = {
     "Returns a FREE preview of AI-generated analytics for a specific match (basic stats + summary). " +
     "For the full premium report with tactical breakdown and model probabilities, use purchase_analysis instead.",
   inputSchema: {
-    matchId: z.string().describe("The match identifier, e.g. 'bra-arg-final' (see get_fixtures)"),
+    matchId: z.string().describe("The match identifier as returned by get_fixtures (a numeric ID from the live data source, or a slug like 'eng-arg-sf2' when running on the bundled fallback)"),
   },
 };
 
 export async function getMatchAnalytics(input: { matchId: string }) {
-  const fixture = FIXTURES.find((f) => f.matchId === input.matchId);
+  const fixture = await getFixtureById(input.matchId);
   if (!fixture) {
     return { error: `Unknown matchId: ${input.matchId}` };
   }
 
-  const sentiment = MARKET_SENTIMENT[input.matchId];
+  const sentiment = syntheticSentiment(fixture.matchId);
 
   return {
     matchId: fixture.matchId,
@@ -25,10 +26,8 @@ export async function getMatchAnalytics(input: { matchId: string }) {
     awayTeam: fixture.awayTeam,
     stage: fixture.stage,
     tier: "free",
-    summary: `${fixture.homeTeam} vs ${fixture.awayTeam}: a closely contested ${fixture.stage.toLowerCase()} with both sides in strong recent form.`,
-    marketSentimentPreview: sentiment
-      ? { homeWinPct: sentiment.homeWinPct, awayWinPct: sentiment.awayWinPct }
-      : undefined,
+    summary: `${fixture.homeTeam} vs ${fixture.awayTeam}: a closely contested ${fixture.stage.toLowerCase()}.`,
+    marketSentimentPreview: { homeWinPct: sentiment.homeWinPct, awayWinPct: sentiment.awayWinPct },
     note: "This is a free preview. Call purchase_analysis for the full tactical report (costs 0.01 USDC via x402).",
   };
 }

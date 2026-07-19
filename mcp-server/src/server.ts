@@ -1,8 +1,11 @@
 import * as dotenv from "dotenv";
+import * as path from "path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import express from "express";
+
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 import { getFixtures, getFixturesSchema } from "./tools/getFixtures";
 import { getMatchAnalytics, getMatchAnalyticsSchema } from "./tools/getMatchAnalytics";
@@ -11,8 +14,6 @@ import { getBracket, getBracketSchema } from "./tools/getBracket";
 import { getPredictions, getPredictionsSchema } from "./tools/getPredictions";
 import { getLeaderboard, getLeaderboardSchema } from "./tools/getLeaderboard";
 import { purchaseAnalysis, purchaseAnalysisSchema } from "./tools/purchaseAnalysis";
-
-dotenv.config();
 
 function buildServer(): McpServer {
   const server = new McpServer({ name: "worldcupiq-mcp", version: "1.0.0" });

@@ -1,10 +1,11 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import * as dotenv from "dotenv";
+import * as path from "path";
 import { verifyPayment, settlePayment } from "./verify";
 import type { AnalyticsReport, X402PaymentPayload, X402PaymentRequirements } from "./types";
 import { generatePremiumReport } from "./reportGenerator";
 
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const app = express();
 app.use(express.json());
@@ -30,7 +31,7 @@ function buildRequirements(resource: string): X402PaymentRequirements {
     description: `WorldCupIQ premium analytics report: ${resource}`,
     mimeType: "application/json",
     payTo: PAY_TO,
-    maxTimeoutSeconds: 60,
+    maxTimeoutSeconds: 300, // 5 min — 60s was too tight for a human to actually notice and click "Sign" in the wallet popup
     asset: USDC_ASSET,
   };
 }
@@ -43,50 +44,55 @@ function buildRequirements(resource: string): X402PaymentRequirements {
  */
 function requirePayment(resourcePath: (req: Request) => string) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const requirements = buildRequirements(resourcePath(req));
-    const paymentHeader = req.header("X-PAYMENT");
-
-    if (!paymentHeader) {
-      return res.status(402).json({
-        x402Version: 1,
-        error: "payment_required",
-        accepts: [requirements],
-      });
-    }
-
-    let payload: X402PaymentPayload;
     try {
-      payload = JSON.parse(Buffer.from(paymentHeader, "base64").toString("utf-8"));
-    } catch {
-      return res.status(400).json({ error: "malformed_payment_header" });
-    }
+      const requirements = buildRequirements(resourcePath(req));
+      const paymentHeader = req.header("X-PAYMENT");
 
-    const verification = await verifyPayment(payload, requirements);
-    if (!verification.isValid) {
-      return res.status(402).json({
-        x402Version: 1,
-        error: "invalid_payment",
-        reason: verification.invalidReason,
-        accepts: [requirements],
-      });
-    }
+      if (!paymentHeader) {
+        return res.status(402).json({
+          x402Version: 1,
+          error: "payment_required",
+          accepts: [requirements],
+        });
+      }
 
-    const settlement = await settlePayment(payload, requirements);
-    if (!settlement.success) {
-      return res.status(402).json({
-        x402Version: 1,
-        error: "settlement_failed",
-        reason: settlement.errorReason,
-        accepts: [requirements],
-      });
-    }
+      let payload: X402PaymentPayload;
+      try {
+        payload = JSON.parse(Buffer.from(paymentHeader, "base64").toString("utf-8"));
+      } catch {
+        return res.status(400).json({ error: "malformed_payment_header" });
+      }
 
-    res.setHeader(
-      "X-PAYMENT-RESPONSE",
-      Buffer.from(JSON.stringify({ success: true, txHash: settlement.txHash })).toString("base64")
-    );
-    (req as Request & { settlementTxHash?: string }).settlementTxHash = settlement.txHash;
-    next();
+      const verification = await verifyPayment(payload, requirements);
+      if (!verification.isValid) {
+        return res.status(402).json({
+          x402Version: 1,
+          error: "invalid_payment",
+          reason: verification.invalidReason,
+          accepts: [requirements],
+        });
+      }
+
+      const settlement = await settlePayment(payload, requirements);
+      if (!settlement.success) {
+        return res.status(402).json({
+          x402Version: 1,
+          error: "settlement_failed",
+          reason: settlement.errorReason,
+          accepts: [requirements],
+        });
+      }
+
+      res.setHeader(
+        "X-PAYMENT-RESPONSE",
+        Buffer.from(JSON.stringify({ success: true, txHash: settlement.txHash })).toString("base64")
+      );
+      (req as Request & { settlementTxHash?: string }).settlementTxHash = settlement.txHash;
+      next();
+    } catch (err) {
+      console.error("[x402-gateway] Unhandled error in payment middleware:", err);
+      res.status(500).json({ error: "unexpected_error", detail: (err as Error).message });
+    }
   };
 }
 
@@ -96,8 +102,13 @@ app.get("/health", (_req, res) => res.json({ status: "ok" }));
  * GET /analytics/:matchId — free preview (no payment required).
  */
 app.get("/analytics/:matchId", async (req, res) => {
-  const report = await generatePremiumReport(req.params.matchId, "free");
-  res.json(report);
+  try {
+    const report = await generatePremiumReport(req.params.matchId, "free");
+    res.json(report);
+  } catch (err) {
+    console.error("[x402-gateway] Error generating free report:", err);
+    res.status(500).json({ error: "unexpected_error", detail: (err as Error).message });
+  }
 });
 
 /**
@@ -107,8 +118,13 @@ app.get(
   "/analytics/:matchId/premium",
   requirePayment((req) => `/analytics/${req.params.matchId}/premium`),
   async (req: Request & { settlementTxHash?: string }, res: Response) => {
-    const report: AnalyticsReport = await generatePremiumReport(req.params.matchId, "premium");
-    res.json({ ...report, paymentTxHash: req.settlementTxHash });
+    try {
+      const report: AnalyticsReport = await generatePremiumReport(req.params.matchId, "premium");
+      res.json({ ...report, paymentTxHash: req.settlementTxHash });
+    } catch (err) {
+      console.error("[x402-gateway] Error generating premium report:", err);
+      res.status(500).json({ error: "unexpected_error", detail: (err as Error).message });
+    }
   }
 );
 

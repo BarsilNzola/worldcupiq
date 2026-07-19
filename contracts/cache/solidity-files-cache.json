@@ -1,0 +1,79 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\User\\Desktop\\worldcupiq\\contracts\\src\\interfaces\\IPredictionMarket.sol": {
+      "lastModificationDate": 1784194883366,
+      "contentHash": "e5e2b00a04a79dcce7cf99cba3b1d6c0",
+      "sourceName": "src/interfaces/IPredictionMarket.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "IPredictionMarket"
+      ]
+    },
+    "C:\\Users\\User\\Desktop\\worldcupiq\\contracts\\src\\PredictionMarket.sol": {
+      "lastModificationDate": 1784194883367,
+      "contentHash": "81e7b44f4f87f5fb8b204a033f5f2252",
+      "sourceName": "src/PredictionMarket.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IPredictionMarket.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "PredictionMarket"
+      ]
+    }
+  }
+}

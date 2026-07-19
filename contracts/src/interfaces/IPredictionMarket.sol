@@ -33,7 +33,13 @@ interface IPredictionMarket {
     function createMatch(bytes32 matchId, string calldata homeTeam, string calldata awayTeam, uint64 kickoffTimestamp)
         external;
 
-    function submitPrediction(bytes32 matchId, Outcome pick) external;
+    function submitPrediction(
+        bytes32 matchId,
+        string calldata homeTeam,
+        string calldata awayTeam,
+        uint64 kickoffTimestamp,
+        Outcome pick
+    ) external;
 
     function resolveMatch(bytes32 matchId, Outcome result) external;
 
