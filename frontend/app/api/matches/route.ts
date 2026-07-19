@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { Fixture } from "../../../lib/types";
 
+export const dynamic = "force-dynamic";
+
 const BASE_URL = process.env.WORLDCUP_DATA_API_BASE_URL ?? "https://api.football-data.org/v4";
 const API_KEY = process.env.WORLDCUP_DATA_API_KEY;
 const COMPETITION_CODE = "WC";
